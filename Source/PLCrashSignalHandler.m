@@ -72,6 +72,10 @@ static struct {
     /** @internal
      * Crash signal callback context */
     void *crashCallbackContext;
+    
+    /** @internal
+     * Enable re-raising the signal from signal handler */
+    BOOL enableReraise;
 } SharedHandlerContext;
 
 
@@ -94,8 +98,9 @@ static void fatal_signal_handler (int signal, siginfo_t *info, void *uapVoid) {
     if (SharedHandlerContext.crashCallback != NULL)
         SharedHandlerContext.crashCallback(signal, info, uapVoid, SharedHandlerContext.crashCallbackContext);
     
-    /* Re-raise the signal */
-    raise(signal);
+    /* Re-raise the signal if requested*/
+    if (SharedHandlerContext.enableReraise)
+        raise(signal);
 }
 
 
@@ -124,6 +129,7 @@ static void fatal_signal_handler (int signal, siginfo_t *info, void *uapVoid) {
 + (void) initialize {
     memset(&SharedHandlerContext, 0, sizeof(SharedHandlerContext));
     SharedHandlerContext.sharedHandler = [[PLCrashSignalHandler alloc] init];
+    SharedHandlerContext.enableReraise = YES;
 }
 
 
@@ -132,6 +138,13 @@ static void fatal_signal_handler (int signal, siginfo_t *info, void *uapVoid) {
  */
 + (PLCrashSignalHandler *) sharedHandler {
     return SharedHandlerContext.sharedHandler;
+}
+
+/**
+ * Set whether the signal handler should re-raise the signal.
+ */
++ (void) setEnableReraise:(const BOOL)enable {
+    SharedHandlerContext.enableReraise = enable;
 }
 
 /**

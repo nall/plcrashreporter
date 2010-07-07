@@ -242,8 +242,8 @@ static void uncaught_exception_handler (NSException *exception) {
  * @return Returns YES on success, or NO if the crash reporter could
  * not be enabled.
  */
-- (BOOL) enableCrashReporter {
-    return [self enableCrashReporterAndReturnError: nil];
+- (BOOL) enableCrashReporterEnableReraise:(const BOOL)enableReraise {
+    return [self enableCrashReporterEnableReraise: enableReraise error: nil];
 }
 
 
@@ -263,7 +263,8 @@ static void uncaught_exception_handler (NSException *exception) {
  * @return Returns YES on success, or NO if the crash reporter could
  * not be enabled.
  */
-- (BOOL) enableCrashReporterAndReturnError: (NSError **) outError {
+- (BOOL) enableCrashReporterEnableReraise:(const BOOL)enableReraise
+                                    error:(NSError **) outError {
     /* Check for programmer error */
     if (_enabled)
         [NSException raise: PLCrashReporterException format: @"The crash reporter has alread been enabled"];
@@ -278,9 +279,12 @@ static void uncaught_exception_handler (NSException *exception) {
     assert(_applicationVersion != nil);
     plcrash_log_writer_init(&signal_handler_context.writer, _applicationIdentifier, _applicationVersion);
 
+    
     /* Enable the signal handler */
     if (![[PLCrashSignalHandler sharedHandler] registerHandlerWithCallback: &signal_handler_callback context: &signal_handler_context error: outError])
         return NO;
+    
+    [PLCrashSignalHandler setEnableReraise:enableReraise];
 
     /* Set the uncaught exception handler */
     NSSetUncaughtExceptionHandler(&uncaught_exception_handler);

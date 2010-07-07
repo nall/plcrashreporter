@@ -53,7 +53,8 @@
 - (BOOL) purgePendingCrashReport;
 - (BOOL) purgePendingCrashReportAndReturnError: (NSError **) outError;
 
-- (BOOL) enableCrashReporter;
-- (BOOL) enableCrashReporterAndReturnError: (NSError **) outError;
+
+- (BOOL) enableCrashReporterEnableReraise:(const BOOL)enableReraise;
+- (BOOL) enableCrashReporterEnableReraise:(const BOOL)enableReraise error: (NSError **) outError;
 
 @end

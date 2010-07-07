@@ -41,6 +41,7 @@
 typedef void (*PLCrashSignalHandlerCallback)(int signal, siginfo_t *info, ucontext_t *uap, void *context);
 
 + (PLCrashSignalHandler *) sharedHandler;
++ (void) setEnableReraise:(const BOOL)enable;
 - (BOOL) registerHandlerWithCallback: (PLCrashSignalHandlerCallback) crashCallback context: (void *) context error: (NSError **) outError;
 
 @end
